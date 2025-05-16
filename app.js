@@ -1,15 +1,23 @@
 const express = require("express");
-// const bcrypt = require("bycrypt")
-// const zod = require("zod")
+const mongoose = require("mongoose");
+
+require("dotenv").config();
 
 const {UserRouter} = require("./routes/user")
 const {CourseRouter} = require("./routes/course")
-const {AdminRouer} = require("./routes/admin")
+const {AdminRouter} = require("./routes/admin")
 
 const app = express();
+app.use(express.json());
 
-app.use("/user", UserRouter);
-app.use("/admin", AdminRouer);
+app.use("/user", UserRouter); 
+app.use("/admin", AdminRouter);
 app.use("/course",CourseRouter);
 
-app.listen(3000);
+async function main(){
+
+    await mongoose.connect(process.env.MONGO_URL);
+    app.listen(3000); 
+}
+
+main();

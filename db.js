@@ -2,33 +2,29 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const ObjectId = Schema.ObjectId;
 
-require("dotenv").config();
-let MONGO_URL = process.env.MONGO_DB_URL;
-mongoose.connect("MONGO_URL")
-
-const UserSchema = Schema({
+const UserSchema = new Schema({
     Email: {type: String, unique: true},
     FirstName: String,
     LastName: String,
     Password: String
 });
 
-const AdminSchema = Schema({
+const AdminSchema = new Schema({
     Email: {type: String, unique: true},
     FirstName: String,
     LastName: String,
     Password: String
 });
 
-const CourseSchema = Schema({
+const CourseSchema = new Schema({
     Title: String,
     Description: String,
-    Price: number,
+    Price: Number,
     ImgUrl: String,
     AdminId: ObjectId
 });
 
-const PurchaseSchema = Schema({
+const PurchaseSchema = new Schema({
     UserId: ObjectId,
     AdminId: ObjectId,
     CourseId: ObjectId
@@ -43,6 +39,5 @@ module.exports = {
    UserModel,
    AdminModel,
    CourseModel,
-   PurchaseModel
-    
+   PurchaseModel   
 }

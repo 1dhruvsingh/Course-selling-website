@@ -1,5 +1,7 @@
 const {Router} = require("express");
 const AdminRouter = Router();
+const {AdminModel} = require("../db.js")
+const {jwt, jwt_Secret} = require("../auth.js");
 
 AdminRouter.post("/signup", async function (req,res){
     

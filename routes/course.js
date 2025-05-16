@@ -1,6 +1,6 @@
-const {Router} = require('express')
+const {Router} = require('express');
 const CourseRouter = Router();
-
+const {CourseModel} = require("../db.js")
 
 CourseRouter.post("/purchase", function(req,res){
     
