@@ -1,7 +1,11 @@
-const jwt_secret = process.env.JWT_SECRET;
+const JWT_USER_SECRET = process.env.JWT_USER_SECRET;
+const JWT_ADMIN_SECRET = process.env.JWT_ADMIN_SECRET;
 const MONGO_URL = process.env.MONGO_URL;
+const jwt = require("jsonwebtoken");
 
 module.exports = {
-    jwt_secret,
-    MONGO_URL
+    JWT_USER_SECRET,
+    JWT_ADMIN_SECRET,
+    MONGO_URL,
+    jwt
 }

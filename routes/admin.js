@@ -1,15 +1,17 @@
 const {Router} = require("express");
 const AdminRouter = Router();
-const {AdminModel} = require("../db.js")
-const {jwt, jwt_Secret} = require("../auth.js");
+const {AdminModel, CourseModel} = require("../db.js")
+const {jwt} = require("../config.js");
+const {AdminMiddleware} = require("../middleware/admin")
+
 
 AdminRouter.post("/signup", async function (req,res){
     try{
         const requiredbody = z.object ({
         email : z.string().min(3).max(40).email(),
-        password : z.string.min(6).max(40).regex("^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$"),
-        Firstname: z.string().min(3),
-        Lastname: z.string().min(3)
+        password: z.string().min(8,"Password must be at least 8 characters").max(40, "Password can't exceed 40 characters").regex(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/,"Password must contain at least one letter and one number and one special character"),
+        Firstname: z.string().min(3).max(40),
+        Lastname: z.string().min(3).max(40)
     })
 
     const parsedData = requiredbody.safeParse(req.body);
@@ -26,8 +28,6 @@ AdminRouter.post("/signup", async function (req,res){
     const password = req.body.password;
     const Firstname = req.body.Firstname;
     const Lastname = req.body.Lastname
-    let error1 = false;
-    try{
     const hashedpassword = await  bcrypt.hash(password, 5);
     await AdminModel.create({
         Email : email,
@@ -35,28 +35,16 @@ AdminRouter.post("/signup", async function (req,res){
         FirstName: Firstname,
         LastName: Lastname
     })
-    }catch(e){
-        res.json({
-            message: "Some error occured ",
-            error: error.message
-        })
-      error1 = true;
-    }
-
-    if(!error1){
-       res.json({
+      res.json({
         message: "Admin sign up successful"
        })
-    }
     }catch(e){
         res.status(401).json({
             message: "Unauthorized",
-            error: error.message
+        error: e.message
         })
     }
 })
-
-
 
 AdminRouter.post("/signin", async function(req,res){
     try{
@@ -75,7 +63,7 @@ AdminRouter.post("/signin", async function(req,res){
     
     const match = await bcrypt.compare(password, user.Password);
     if(match){
-        const token = jwt.sign({id: admin._id}, jwt_Secret);
+        const token = jwt.sign({id: admin._id}, process.env.JWT_ADMIN_SECRET);
         res.json({
             token: token
         })
@@ -87,20 +75,33 @@ AdminRouter.post("/signin", async function(req,res){
     }catch(e){
         res.status(401).json({
             message: "Unauthorized",
-            error: error.message
+            error: e.message
         })
     }
 })
 
-AdminRouter.post("/course", function(req,res){
-    
+AdminRouter.post("/course", AdminMiddleware,async function(req,res){
+    const adminId = req.adminId;
+
+    const {title,description,price,Imgurl} = req.body;
+    const course = await CourseModel.create({
+        Title: title,
+        Description: description,
+        Price: price,
+        ImgUrl: Imgurl,
+        AdminId: adminId
+    })
+     res.json({
+        message:"Course created",
+        CourseId: course._id
+     })
 })
 
-AdminRouter.put("/course", function(req, res){
+AdminRouter.put("/course", AdminMiddleware, function(req, res){
 
 })
 
-AdminRouter.get("/course/bulk", function(req, res){
+AdminRouter.get("/course/bulk",AdminMiddleware, function(req, res){
     
 })
 
