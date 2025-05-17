@@ -1,7 +1,7 @@
 const {Router} = require("express");
 const AdminRouter = Router();
 const {AdminModel, CourseModel} = require("../db.js")
-const {jwt} = require("../config.js");
+const {jwt,z,bcrypt} = require("../config.js");
 const {AdminMiddleware} = require("../middleware/admin")
 
 
@@ -61,7 +61,7 @@ AdminRouter.post("/signin", async function(req,res){
         })
     }
     
-    const match = await bcrypt.compare(password, user.Password);
+    const match = await bcrypt.compare(password, admin.Password);
     if(match){
         const token = jwt.sign({id: admin._id}, process.env.JWT_ADMIN_SECRET);
         res.json({
@@ -100,8 +100,11 @@ AdminRouter.post("/course", AdminMiddleware,async function(req,res){
 AdminRouter.put("/course", AdminMiddleware, async function(req, res){
      const adminId = req.adminId;
 
-     const {title,description,price,Imgurl} = req.body;
-     const course = await CourseModel.updateOne({ _id: adminId},{
+     const {title,description,price,Imgurl, courseId} = req.body;
+     const course = await CourseModel.updateOne({ 
+        _id: courseId,
+        AdminId: adminId
+    },{
         Title: title,
         Description: description,
         Price: price,
@@ -116,10 +119,10 @@ AdminRouter.put("/course", AdminMiddleware, async function(req, res){
 AdminRouter.get("/course/bulk",AdminMiddleware, async function(req, res){
      const adminid = req.adminId;
 
-     await Data.find({AdminId: adminId}).populate("AdminId").then(Data=>{
-        res.json({
-            message: Data
-        })
+     const courses = await CourseModel.find({AdminId: adminId});
+     res.json({
+         message: "courses found",
+         courses
      })
 
 })

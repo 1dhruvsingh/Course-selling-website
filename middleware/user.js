@@ -1,7 +1,8 @@
 require("dotenv").config();
+const{jwt} =require("../config.js");
 
 function UserMiddleware(req, res, next){
-    const token = req.header.authorization;
+    const token = req.header.token;
         
         const userDetails = jwt.verify(token, process.env.JWT_USER_SECRET);
         if(userDetails){

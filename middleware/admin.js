@@ -1,7 +1,8 @@
 require("dotenv").config();
+const {jwt} =require("../config.js");
 
 function AdminMiddleware(req, res, next){
-    const token = req.header.authorization;
+    const token = req.header.token;
         
         const adminDetails = jwt.verify(token, process.env.JWT_ADMIN_SECRET);
         if(adminDetails){

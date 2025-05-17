@@ -1,9 +1,7 @@
 const {Router} = require("express");
 const UserRouter = Router();
 const {UserModel} =require("../db.js");
-const bcrypt = require("bcrypt");
-const z = require("zod");
-const {jwt} = require("../config.js");
+const {jwt,z,bcrypt} = require("../config.js");
 const {UserMiddleware} = require("../middleware/user.js")
 require("dotenv").config();
 
