@@ -97,12 +97,31 @@ AdminRouter.post("/course", AdminMiddleware,async function(req,res){
      })
 })
 
-AdminRouter.put("/course", AdminMiddleware, function(req, res){
+AdminRouter.put("/course", AdminMiddleware, async function(req, res){
+     const adminId = req.adminId;
 
+     const {title,description,price,Imgurl} = req.body;
+     const course = await CourseModel.updateOne({ _id: adminId},{
+        Title: title,
+        Description: description,
+        Price: price,
+        ImgUrl: Imgurl
+     })
+     res.json({
+        message: "Course Details updated",
+        CourseId: course._id
+     })
 })
 
-AdminRouter.get("/course/bulk",AdminMiddleware, function(req, res){
-    
+AdminRouter.get("/course/bulk",AdminMiddleware, async function(req, res){
+     const adminid = req.adminId;
+
+     await Data.find({AdminId: adminId}).populate("AdminId").then(Data=>{
+        res.json({
+            message: Data
+        })
+     })
+
 })
 
 module.exports={
