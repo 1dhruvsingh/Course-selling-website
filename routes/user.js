@@ -1,12 +1,14 @@
 const {Router} = require("express");
 const UserRouter = Router();
 const {UserModel} =require("../db.js");
-const bcrypt = require("bycrypt");
+const bcrypt = require("bcrypt");
 const z = require("zod");
-const {jwt, jwt_Secret} = require("../auth.js");
+const {jwt} = require("../auth.js");
+require("dotenv").config();
 
 UserRouter.post("/signup", async function (req,res){
-    const requiredbody = zod.object ({
+     try{
+    const requiredbody = z.object ({
         email : z.string().min(3).max(40).email(),
         password : z.string.min(6).max(40).regex("^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$"),
         Firstname: z.string().min(3),
@@ -26,9 +28,8 @@ UserRouter.post("/signup", async function (req,res){
     const email = req.body.email;
     const password = req.body.password;
     const Firstname = req.body.Firstname;
-    const LastName = req.body.Lastname
-    let error1 = false;
-    try{
+    const Lastname = req.body.Lastname
+   
     const hashedpassword = await  bcrypt.hash(password, 5);
     await UserModel.create({
         Email : email,
@@ -41,18 +42,11 @@ UserRouter.post("/signup", async function (req,res){
             message: "Some error occured ",
             error: error.message
         })
-      error1 = true;
     }
-
-    if(!error1){
-       res.json({
-        message: "sign up successful"
-       })
-    }
-})
-
+});
 
 UserRouter.post("/signin", async function(req,res){
+   try{
     const email = req.body.email;
     const password = req.body.password;
     
@@ -66,11 +60,24 @@ UserRouter.post("/signin", async function(req,res){
         })
     }
     
-    const match = await bcrypt.compare(password, user.password );
+    const match = await bcrypt.compare(password, user.Password);
     if(match){
-
+        const token = jwt.sign({id: user._id}, process.env.jwt_secret);
+        res.json({
+            token: token
+        })
+    }else {
+        res.status(403).json({
+            message: "Uunauthorized"
+        })
     }
-})
+   } catch(e){
+      res.status(401).json({
+        message: "Unauthorized",
+        error: error.message
+      })
+   }
+});
 
 UserRouter.get("/purchases", async function(req,res){
     
